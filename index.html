@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hinglish Study Buddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;600&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#fbfdff;--ink:#16224a;--mute:#56628c;--line:#c9dcf5;--margin:#d7263d;--card:#fff;--hi:#ffe14d;--ok:#1a8f55;--bad:#d7263d}
+@media(prefers-color-scheme:dark){:root{--paper:#12231d;--ink:#f1f5ea;--mute:#a9bdb2;--line:#25413a;--margin:#ff7b8a;--card:#183029;--ok:#3fbf7f;--bad:#e5484d}}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font:17px/32px "Hind",system-ui,sans-serif;background:var(--paper) linear-gradient(var(--line) 1px,transparent 1px) 0 12px/100% 32px}
+main{position:relative;max-width:780px;margin:0 auto;padding:24px 18px 60px 58px}
+main::before{content:"";position:absolute;top:0;bottom:0;left:40px;width:2px;background:var(--margin);opacity:.65}
+h1,h3,.tabs button,.card{font-family:"Kalam","Segoe Print",cursive}
+h1{font-size:clamp(2.2rem,7vw,3.4rem);line-height:1.15;margin:6px 0 8px;font-weight:700}
+h1 mark{display:inline-block;background:var(--hi);color:#16224a;padding:0 8px;border-radius:3px;transform:rotate(-1deg)}
+h3{margin:0 0 6px;font-size:1.3rem;line-height:1.4}
+.sub{color:var(--mute);margin:0 0 20px}
+textarea,input,select{width:100%;font:inherit;color:var(--ink);background-color:var(--card);border:2px solid var(--ink);border-radius:8px;padding:8px 12px}
+textarea{min-height:320px;resize:vertical;line-height:32px;padding-top:0;padding-bottom:0;background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 32px;background-attachment:local}
+:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.row>*{flex:1 1 150px}
+button{font:inherit;font-weight:600;cursor:pointer;border:2px solid var(--ink);border-radius:8px;background:var(--card);color:var(--ink);padding:6px 16px;box-shadow:3px 3px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+button:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+button.main{background:var(--hi);color:#16224a}
+.tabs{display:flex;gap:6px;margin:24px 0 0;flex-wrap:wrap}
+.tabs button{box-shadow:none;border-bottom:0;border-radius:10px 10px 0 0;padding:4px 16px;font-size:1.1rem}
+.tabs button[aria-selected=true]{background:var(--hi);color:#16224a}
+.panel{background:var(--card);border:2px solid var(--ink);border-radius:0 10px 10px 10px;padding:16px 20px;line-height:1.7}
+.panel p{margin:6px 0}
+.card{min-height:160px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:1.35rem;line-height:1.5;padding:22px;border:2px solid var(--ink);border-radius:4px;cursor:pointer;margin:14px 0;background:var(--hi);color:#16224a;transform:rotate(-1deg);box-shadow:4px 5px 0 rgba(22,34,74,.35)}
+.card.back{background:var(--card);color:var(--ink);transform:rotate(1deg)}
+.opt{display:block;width:100%;text-align:left;margin:8px 0;font-weight:400;box-shadow:2px 2px 0 var(--ink)}
+.opt.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.opt.bad{background:var(--bad);color:#fff;border-color:var(--bad)}
+.why{color:var(--mute);font-size:.92rem;line-height:1.5}
+.bar{display:flex;gap:8px;align-items:center;margin:0 0 10px}
+.bar input{width:auto}
+.hide{display:none}
+footer{color:var(--mute);font-size:.85rem;line-height:1.5;margin-top:30px}
+@media(max-width:480px){main{padding-left:44px}main::before{left:28px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<h1>Hinglish <mark>Study Buddy</mark></h1>
+<p class="sub">Notes likho. Flashcards aur quiz apne aap ban jayenge.</p>
+
+<div class="tabs" role="tablist">
+<button role="tab" aria-selected="true" data-t="notes">Notes</button>
+<button role="tab" aria-selected="false" data-t="cards">Flashcards</button>
+<button role="tab" aria-selected="false" data-t="quiz">Quiz</button>
+</div>
+
+<div class="panel" id="notes">
+<div class="row">
+<select id="nSel" aria-label="Note chuno"></select>
+<button id="nNew" class="main">+ Naya note</button>
+<button id="nDel">Delete</button>
+</div>
+<input id="nTitle" placeholder="Note ka title" aria-label="Note ka title">
+<p class="why">Flashcard banane ke liye ek line mein likho: <b>shabd : matlab</b> (ya <b>shabd - matlab</b>). Baaki lines normal notes hain.</p>
+<textarea id="nBody" placeholder="Yahan notes likho..." aria-label="Notes"></textarea>
+<p class="why" id="cnt"></p>
+</div>
+
+<div class="panel hide" id="study">
+<label class="bar"><input type="checkbox" id="allN"> Saare notes se banao</label>
+<div id="cardsBox"></div>
+<div id="quizBox" class="hide"></div>
+</div>
+
+<footer>Tumhare notes sirf tumhare browser mein save hote hain. Browser ka data clear karoge to ye bhi hat jayenge.</footer>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>{const d=document.createElement("div");d.textContent=s==null?"":String(s);return d.innerHTML};
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const KEY="hsb_notes_v1";
+const SAMPLE="Photosynthesis : Paudhe sunlight se apna khana banate hain\nChlorophyll : Patton ka hara pigment jo light absorb karta hai\nStomata : Patton ke chhote chhed jinse gas aati-jaati hai\nMitochondria : Cell ka powerhouse, yahin energy banti hai\nNucleus : Cell ka control room, DNA yahin hota hai";
+let notes=[],cur=null,tab="notes";
+
+try{notes=JSON.parse(localStorage.getItem(KEY))||[]}catch(e){notes=[]}
+if(!notes.length)notes=[{id:Date.now(),title:"Mera pehla note",body:SAMPLE}];
+cur=notes[0].id;
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(notes))}catch(e){}};
+const note=()=>notes.find(n=>n.id===cur)||notes[0];
+
+function drawNotes(){
+  $("nSel").innerHTML=notes.map(n=>`<option value="${n.id}">${esc(n.title||"Bina title")}</option>`).join("");
+  $("nSel").value=note().id;
+  $("nTitle").value=note().title;
+  $("nBody").value=note().body;
+  count();
+}
+function pairs(){
+  const src=$("allN").checked?notes:[note()];
+  const out=[];
+  src.forEach(n=>n.body.split("\n").forEach(l=>{
+    l=l.replace(/^\s*(?:[-*\u2022]|\d+[.)])\s+/,"").trim();
+    const m=l.match(/^(.{1,80}?)\s*(?::|\s-\s|\s=\s|\u2014|\u2013)\s*(.{2,})$/);
+    if(m)out.push({q:m[1].trim(),a:m[2].trim()});
+  }));
+  return out;
+}
+function count(){const n=pairs().length;$("cnt").textContent=n?`${n} flashcards aur quiz ke sawal ban sakte hain.`:"Abhi koi flashcard nahi bana. Ek line mein likho: shabd : matlab";}
+
+$("nSel").onchange=()=>{cur=+$("nSel").value;drawNotes()};
+$("nNew").onclick=()=>{const n={id:Date.now(),title:"Naya note",body:""};notes.unshift(n);cur=n.id;save();drawNotes();$("nTitle").select()};
+$("nDel").onclick=()=>{
+  if(!confirm("Ye note delete karein?"))return;
+  notes=notes.filter(n=>n.id!==cur);
+  if(!notes.length)notes=[{id:Date.now(),title:"Naya note",body:""}];
+  cur=notes[0].id;save();drawNotes();
+};
+$("nTitle").oninput=()=>{note().title=$("nTitle").value;save();const o=$("nSel").selectedOptions[0];if(o)o.textContent=$("nTitle").value||"Bina title"};
+$("nBody").oninput=()=>{note().body=$("nBody").value;save();count()};
+$("allN").onchange=()=>show(tab);
+
+/* Tabs */
+function show(t){
+  tab=t;
+  document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t));
+  $("notes").classList.toggle("hide",t!=="notes");
+  $("study").classList.toggle("hide",t==="notes");
+  $("cardsBox").classList.toggle("hide",t!=="cards");
+  $("quizBox").classList.toggle("hide",t!=="quiz");
+  if(t==="cards")startCards();
+  if(t==="quiz")buildQuiz();
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>show(b.dataset.t));
+const empty=()=>`<p>Pehle Notes tab mein kam se kam 3 lines is tarah likho: <b>shabd : matlab</b></p>`;
+
+/* Flashcards */
+let deck=[],ci=0,flipped=false;
+function startCards(){deck=pairs();ci=0;flipped=false;drawCard()}
+function drawCard(){
+  const b=$("cardsBox");
+  if(!deck.length){b.innerHTML=empty();return}
+  const c=deck[ci];
+  b.innerHTML=`<p class="why">Card ${ci+1} / ${deck.length}. Palatne ke liye card par tap karo.</p>
+  <div class="card ${flipped?"back":""}" id="fc" tabindex="0" role="button" aria-label="Card palto">${esc(flipped?c.a:c.q)}</div>
+  <div class="row"><button id="prev">Pichla</button><button id="shuf">Mix karo</button><button id="next" class="main">Agla</button></div>`;
+  const flip=()=>{flipped=!flipped;drawCard();$("fc").focus()};
+  $("fc").onclick=flip;
+  $("fc").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();flip()}};
+  $("prev").onclick=()=>{ci=(ci-1+deck.length)%deck.length;flipped=false;drawCard()};
+  $("next").onclick=()=>{ci=(ci+1)%deck.length;flipped=false;drawCard()};
+  $("shuf").onclick=()=>{deck=shuf(deck);ci=0;flipped=false;drawCard()};
+}
+
+/* Quiz */
+function buildQuiz(){
+  const b=$("quizBox"),p=pairs();
+  if(p.length<3){b.innerHTML=empty();return}
+  const qs=shuf(p).slice(0,10).map(x=>{
+    const wrong=[...new Set(p.filter(y=>y.a!==x.a).map(y=>y.a))];
+    return {q:x.q,a:x.a,opts:shuf([x.a,...shuf(wrong).slice(0,3)])};
+  }).filter(x=>x.opts.length>1);
+  let score=0,done=0;
+  b.innerHTML=`<p class="why" id="sc">Score: 0 / ${qs.length}</p>`+
+    qs.map((x,i)=>`<div data-i="${i}"><h3>${i+1}. "${esc(x.q)}" ka matlab kya hai?</h3>${x.opts.map((o,j)=>`<button class="opt" data-j="${j}">${esc(o)}</button>`).join("")}</div>`).join("")+
+    `<div class="row"><button id="again" class="main">Naya quiz</button></div>`;
+  b.querySelectorAll("[data-i]").forEach(box=>{
+    const x=qs[+box.dataset.i];
+    box.querySelectorAll(".opt").forEach(btn=>btn.onclick=()=>{
+      if(box.dataset.done)return;box.dataset.done=1;done++;
+      if(x.opts[+btn.dataset.j]===x.a){score++;btn.classList.add("ok")}
+      else{btn.classList.add("bad");box.querySelectorAll(".opt").forEach(o=>{if(o.textContent===x.a)o.classList.add("ok")})}
+      $("sc").textContent=`Score: ${score} / ${qs.length}`+(done===qs.length?(score>=qs.length*0.8?"  Zabardast!":"  Ek baar notes phir padho."):"");
+    });
+  });
+  $("again").onclick=buildQuiz;
+}
+
+drawNotes();
+</script>
+</body>
+</html>
